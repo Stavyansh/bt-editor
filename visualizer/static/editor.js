@@ -1030,16 +1030,24 @@ function centerView() {
         State.pan = { x: els.wrapper.clientWidth / 2, y: els.wrapper.clientHeight / 2 };
     } else {
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        let validNodes = 0;
         for (const node of State.nodes.values()) {
-            minX = Math.min(minX, node.x);
-            minY = Math.min(minY, node.y);
-            maxX = Math.max(maxX, node.x + node.width);
-            maxY = Math.max(maxY, node.y + node.height);
+            if (isFinite(node.x) && isFinite(node.y) && isFinite(node.width) && isFinite(node.height)) {
+                minX = Math.min(minX, node.x);
+                minY = Math.min(minY, node.y);
+                maxX = Math.max(maxX, node.x + node.width);
+                maxY = Math.max(maxY, node.y + node.height);
+                validNodes++;
+            }
         }
-        const cx = (minX + maxX) / 2;
-        const cy = (minY + maxY) / 2;
-        State.pan.x = els.wrapper.clientWidth / 2 - cx * State.zoom;
-        State.pan.y = els.wrapper.clientHeight / 2 - cy * State.zoom;
+        if (validNodes === 0) {
+            State.pan = { x: els.wrapper.clientWidth / 2, y: els.wrapper.clientHeight / 2 };
+        } else {
+            const cx = (minX + maxX) / 2;
+            const cy = (minY + maxY) / 2;
+            State.pan.x = els.wrapper.clientWidth / 2 - cx * State.zoom;
+            State.pan.y = els.wrapper.clientHeight / 2 - cy * State.zoom;
+        }
     }
     render();
 }
@@ -1291,11 +1299,25 @@ function escapeXml(text) {
 function deserializeTree(data) {
     clearCanvas();
     const nodeMap = new Map(); // original id -> new id
+    const MAX_DEPTH = 20;
+    const MAX_NODES = 100;
+    let nodeCount = 0;
 
-    function buildNode(nodeData, x = 100, y = 100) {
+    function buildNode(nodeData, x = 100, y = 100, depth = 0) {
+        if (depth > MAX_DEPTH || nodeCount >= MAX_NODES) {
+            console.warn('Max depth/nodes reached, stopping');
+            return null;
+        }
+
+        if (!NODE_DEFAULTS[nodeData.type]) {
+            console.warn('Unknown node type:', nodeData.type);
+            return null;
+        }
+
         const node = createNode(nodeData.type, x, y);
         node.name = nodeData.name || nodeData.type;
         node.properties = { ...nodeData.properties };
+        nodeCount++;
 
         if (nodeData.children && nodeData.children.length > 0) {
             let childY = y;
@@ -1303,9 +1325,11 @@ function deserializeTree(data) {
             for (let i = 0; i < nodeData.children.length; i++) {
                 const childData = nodeData.children[i];
                 const childX = x + 220;
-                const child = buildNode(childData, childX, childY);
-                addConnection(node.id, 'output', child.id, 'input');
-                childY += child.height + spacing;
+                const child = buildNode(childData, childX, childY, depth + 1);
+                if (child) {
+                    addConnection(node.id, 'output', child.id, 'input');
+                    childY += child.height + spacing;
+                }
             }
         }
 
@@ -1313,8 +1337,13 @@ function deserializeTree(data) {
     }
 
     // Start from root
-    buildNode(data, 100, 100);
-    centerView();
+    try {
+        buildNode(data, 100, 100);
+        centerView();
+    } catch (e) {
+        console.error('Deserialize error:', e);
+        clearCanvas();
+    }
 }
 
 function saveXML() {
