@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: bt-editor
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: uvicorn visualizer.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+    healthCheckPath: /api/health
+    autoDeploy: true

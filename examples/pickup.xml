@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sequence name="PickAndPlace">
+    <Selector name="FindObject">
+        <Sequence name="ObjectInGripper">
+            <Condition name="HasObject" />
+            <Action name="SkipToPlace" />
+        </Sequence>
+        <Sequence name="LocateAndGrasp">
+            <Action name="ScanForObject" />
+            <Condition name="ObjectFound" />
+            <Action name="MoveToObject" />
+            <Action name="GraspObject" />
+        </Sequence>
+    </Selector>
+
+    <Sequence name="TransportObject">
+        <Action name="MoveToTargetLocation" />
+        <Condition name="AtTargetLocation" />
+    </Sequence>
+
+    <Repeater name="RetryPlace" count="3">
+        <Sequence name="PlaceAttempt">
+            <Action name="AlignGripper" />
+            <Action name="ReleaseObject" />
+            <Condition name="ObjectReleased" />
+        </Sequence>
+    </Repeater>
+
+    <Action name="RetractArm" />
+</Sequence>

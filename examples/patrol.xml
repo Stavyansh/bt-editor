@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Selector name="RobotPatrol">
+    <Sequence name="LowBattery">
+        <Condition name="BatteryLow" />
+        <Action name="GoHomeAndCharge" />
+    </Sequence>
+
+    <Sequence name="DirtDetected">
+        <Condition name="DirtDetected" />
+        <Action name="CleanSpot" />
+    </Sequence>
+
+    <Sequence name="PatrolRooms">
+        <Action name="MoveToNextRoom" />
+        <Action name="ScanRoom" />
+        <Condition name="RoomClear" />
+    </Sequence>
+</Selector>

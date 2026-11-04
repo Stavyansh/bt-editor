@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behavior Tree Editor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="toolbar">
+        <div class="toolbar-left">
+            <h1>Behavior Tree Editor</h1>
+            <span class="version">v0.1.0</span>
+        </div>
+        <div class="toolbar-center">
+            <button id="btn-load" class="btn" title="Load Example (L)">📁 Load</button>
+            <button id="btn-save" class="btn" title="Save XML (S)">💾 Save</button>
+            <button id="btn-export" class="btn" title="Export XML (E)">📤 Export</button>
+            <div class="divider"></div>
+            <select id="example-select" title="Choose Example">
+                <option value="">-- Examples --</option>
+            </select>
+        </div>
+        <div class="toolbar-right">
+            <button id="btn-run" class="btn btn-primary" title="Run Tree (R)">▶ Run</button>
+            <button id="btn-step" class="btn" title="Step One Tick (Space)">⏭ Step</button>
+            <button id="btn-stop" class="btn btn-danger" title="Stop (Esc)" disabled>⏹ Stop</button>
+            <button id="btn-reset" class="btn" title="Reset (Backspace)">↺ Reset</button>
+            <div class="divider"></div>
+            <span id="status-badge" class="badge badge-idle">Idle</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Palette Panel -->
+        <aside class="panel palette-panel" id="palette-panel">
+            <div class="panel-header">
+                <h2>🧩 Palette</h2>
+                <input type="text" id="palette-search" placeholder="Search nodes..." class="search-input">
+            </div>
+            <div class="palette-categories" id="palette-categories">
+                <!-- Populated by JS -->
+            </div>
+        </aside>
+
+        <!-- Canvas Panel -->
+        <main class="panel canvas-panel">
+            <div class="canvas-header">
+                <div class="canvas-controls">
+                    <button id="btn-zoom-in" class="icon-btn" title="Zoom In (+)">🔍+</button>
+                    <button id="btn-zoom-out" class="icon-btn" title="Zoom Out (-)">🔍-</button>
+                    <button id="btn-zoom-reset" class="icon-btn" title="Reset Zoom (0)">🔍0</button>
+                    <span id="zoom-level" class="zoom-level">100%</span>
+                    <div class="divider"></div>
+                    <button id="btn-center" class="icon-btn" title="Center View (C)">⌖</button>
+                    <button id="btn-grid" class="icon-btn active" title="Toggle Grid (G)">⊞</button>
+                </div>
+                <div class="canvas-info">
+                    <span id="node-count">0 nodes</span>
+                    <span id="tick-info" class="hidden">Tick: <span id="current-tick">0</span></span>
+                </div>
+            </div>
+            <div class="canvas-wrapper" id="canvas-wrapper">
+                <canvas id="canvas"></canvas>
+                <!-- Connection preview line -->
+                <svg id="connection-preview" class="hidden"></svg>
+            </div>
+        </main>
+
+        <!-- Properties Panel -->
+        <aside class="panel properties-panel" id="properties-panel">
+            <div class="panel-header">
+                <h2>⚙️ Properties</h2>
+            </div>
+            <div class="properties-content" id="properties-content">
+                <div class="empty-state">
+                    <p>Select a node to edit properties</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- History Panel (bottom) -->
+    <footer class="panel history-panel" id="history-panel">
+        <div class="panel-header">
+            <h2>📜 Execution History</h2>
+            <button id="btn-clear-history" class="icon-btn" title="Clear History">🗑</button>
+        </div>
+        <div class="history-content" id="history-content">
+            <div class="empty-state">Run a tree to see execution history</div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay hidden"></div>
+    <div id="load-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Load Example</h3>
+            <div id="example-list" class="example-list"></div>
+            <div class="modal-actions">
+                <button class="btn" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-load">Load Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="save-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Save Tree</h3>
+            <input type="text" id="save-filename" placeholder="my-tree.xml" value="my-tree.xml">
+            <div class="modal-actions">
+                <button class="btn" id="save-cancel">Cancel</button>
+                <button class="btn btn-primary" id="save-confirm">Save XML</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/editor.js"></script>
+</body>
+</html>

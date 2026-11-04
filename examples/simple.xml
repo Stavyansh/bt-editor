@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sequence name="SimpleSequence">
+    <Action name="Action1" />
+    <Action name="Action2" />
+    <Action name="Action3" />
+</Sequence>
